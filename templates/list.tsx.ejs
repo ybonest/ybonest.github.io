@@ -1,0 +1,57 @@
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import {
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+import { Synopsis, Details, Card } from '@components/styled';
+
+function markdown(markdown): React.FunctionComponent  {
+  return ()  => {
+    return <div dangerouslySetInnerHTML={{ __html: markdown }} />
+  }
+};
+
+function RightContent() {
+  return (
+    <Card>
+      <p>Card content</p>
+      <p>Card content</p>
+      <p>Card content</p>
+    </Card>
+  );
+}
+
+export const List = ((sources: Record<string, string>[]): React.FunctionComponent => () => {
+  return (
+    <React.Fragment>
+      <Switch>
+        <Route exact path='/'>
+          <Synopsis key="list" content={{ display: 'none', padding: '0px' }}>
+                {sources.map(source => (
+                  <Link key={source.basename} to={'/' + source.basename}>
+                    {React.createElement(markdown(source.content), { key: source.basename })}
+                  </Link>
+              ))}
+          </Synopsis>
+          <RightContent />
+        </Route>
+      </Switch>
+        <Switch>
+          {sources.map(source => (
+            <Route key={source.basename} exact path={'/' + source.basename}>
+              <Details key="details">
+                {React.createElement(markdown(source.content), { key: source.basename })}
+              </Details>
+              <RightContent />
+            </Route>
+          ))}
+        </Switch>
+    </React.Fragment>
+  );
+})([
+  <% for (const source of sources) { %>
+    { content: require('<%= source %>'), basename: '<%= source %>' },
+  <% } %>
+])
